@@ -211,6 +211,22 @@ func (c Cell) GridDiskDistances(k int) [][]Cell {
 	return GridDiskDistances(c, k)
 }
 
+// MaxPolygonToCellsSize returns the number of hexagons to allocate space for
+// when computing polygonToCells on the given GeoJSON-like data structure.
+func MaxPolygonToCellsSize(polygon GeoPolygon, resolution int) int64 {
+	if len(polygon.GeoLoop) == 0 {
+		return 0
+	}
+	cpoly := allocCGeoPolygon(polygon)
+
+	defer freeCGeoPolygon(&cpoly)
+
+	maxLen := new(C.int64_t)
+	C.maxPolygonToCellsSize(&cpoly, C.int(resolution), 0, maxLen)
+
+	return int64(*maxLen)
+}
+
 // PolygonToCells takes a given GeoJSON-like data structure fills it with the
 // hexagon cells that are contained by the GeoJSON-like data structure.
 //
